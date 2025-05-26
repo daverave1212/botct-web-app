@@ -8,7 +8,7 @@
 
     import { goto } from '$app/navigation'
 
-    import { rolesDistribution, autochooseRoles } from '../../stores/roles-store'
+    import { rolesDistribution, autochooseRoles, setupCustomDifficultyRoles } from '../../stores/roles-store'
     import { selectedDifficulty } from '../../stores/difficulty-store'
     import { selectedModOption, autochooseMod, currentlySelectedMod, getUnusedMods, NO_MODS, WITH_MODS } from '../../stores/mods-store'
     import { hasRegenerateRolesTooltip } from '../../stores/tutorial-store'
@@ -20,11 +20,15 @@
     import RoleList from "../../components/RoleList.svelte";
     import { getMods } from "../../lib/ModsDatabase";
     import RoleCard from "../../components/RoleCard.svelte";
+    import { autochooseBOTCTRoles, isSecretBOTCT } from "../../stores/secret-botct-store";
     
     let currentlyOpenObject
 
     function generateRoles() {
-        autochooseRoles($addedPlayers.length)
+        autochooseRoles($addedPlayers.length, $selectedDifficulty.difficulty)
+    }
+    function generateMod() {
+        autochooseMod()
     }
 
     onMount(() => {
@@ -33,7 +37,15 @@
             throw `No players added.`
         }
         if ($rolesDistribution.length == 0 || $rolesDistribution.length != $addedPlayers.length) {
-            generateRoles()
+            if ($selectedDifficulty.name == 'Custom') {
+                setupCustomDifficultyRoles()
+            } else {
+                generateRoles()
+            }
+        }
+        console.log(`Selected mod option??? ${$selectedModOption}`)
+        if ($selectedModOption == WITH_MODS) {
+            generateMod()
         }
     })
 
@@ -45,6 +57,13 @@
     function onClickOnRole(i) {
         currentlyOpenObject = $rolesDistribution[i]
     }
+    function onClickOnUnusedMod(mod) {
+        currentlyOpenObject = mod
+    }
+    function onClickOnSelectedMod() {
+        currentlyOpenObject = $currentlySelectedMod
+    }
+
 
 
 </script>
@@ -58,40 +77,86 @@
     onClickOutside={() => {}}
 >
     <div slot="top" class="center-content center-text padded">
-        <h2>Roles in this game</h2>
-        <br>
-        <p class="text-align-left">These are all the {$addedPlayers.length} roles automatically selected to be in this game.</p>
-        <p class="text-align-left margin-top-1">
-            Take these cards, shuffle them in a deck, and give each player one card. Players can look at their card.
-        </p>
-        <p class="text-align-left margin-top-1">
-            When every player took a role, scroll down to continue.
-        </p>
+        {#if $selectedDifficulty.name != 'Custom'}
+            <h2>Roles in this game</h2>
+            <br>
+            <p class="text-align-left">These are all the {$addedPlayers.length} roles automatically selected from the {$selectedDifficulty.name} difficulty to be in this game.</p>
+            <p class="text-align-left margin-top-1">
+                Take these cards, shuffle them in a deck, and give each player one card. Players can look at their card.
+            </p>
+            <p class="text-align-left margin-top-1">
+                When every player took a role, scroll down to continue.
+            </p>
+        {:else}
+            <h2>Roles</h2>
+            <br>
+            <p class="text-align-left">Create your own deck of cards to give the players. All these roles are available.</p>
+            <p class="text-align-left margin-top-1">
+                When every player took a role, scroll down to continue.
+            </p>
+        {/if}
+
         {#if $rolesDistribution.find(role => role.isDrunk) != null}
             <h3 class="margin-top-1">Drunk: {$rolesDistribution.find(role => role.isDrunk).name}</h3>
             <p>There is a Drunk in the game: {$rolesDistribution.find(role => role.isDrunk).name}</p>
         {/if}
-        <div class="flex-content center-content margin-top-2">
-            <button class="btn big blue" style="position: relative" on:click={onRegenerateClick}>
-                <Tooltip isShown={$hasRegenerateRolesTooltip} left="50%" top="80%" width="200px">
-                    If you don't like the role distribution, you can regenerate them.
-                </Tooltip>
-                Regenerate Roles
-            </button>
-        </div>
+
+        {#if $selectedDifficulty.name != 'Custom'}
+            <div class="flex-content center-content margin-top-2">
+                <button class="btn big blue" style="position: relative" on:click={onRegenerateClick}>
+                    <Tooltip isShown={$hasRegenerateRolesTooltip} left="50%" top="80%" width="200px">
+                        If you don't like the role distribution, you can regenerate them.
+                    </Tooltip>
+                    Regenerate Roles
+                </button>
+            </div>
+        {/if}
+
     </div>
 
     <div slot="middle" class="center-content center-text padded">
 
-        <div class="flex-content center-content">
+
+        {#if $currentlySelectedMod != null && $selectedModOption != NO_MODS}
+            <h2 class="margin-top-2">Selected Mod</h2>
+            <br>
+            <p>This mod was selected for the game.</p>
+
+            <div class="flex-content center-content margin-top-2">
+                <button class="btn big blue" on:click={generateMod}>Regenerate Mod</button>
+            </div>
+
+            <div class="margin-top-2">
+                <RoleCard role={$currentlySelectedMod} isValid={true} on:role-click={() => onClickOnSelectedMod()}/>
+            </div>
+        {/if}
+
+
+
+        <div class="flex-content center-content margin-top-2">
             <a class="btn big colorful" href="/difficulty-select" on:click|preventDefault={() => goto('/difficulty-select')}>Back</a>
             <a class="btn big colorful" style="width: 40vw;" href="/players" on:click|preventDefault={() => goto('/players')}>Next</a>
         </div>
 
-        <h2 class="margin-top-4">Roles NOT in game</h2>
-        <br>
-        <p>These roles are NOT in the game.</p>
+        {#if $selectedDifficulty.name != 'Custom'}
+            <h2 class="margin-top-4">Roles NOT in game</h2>
+            <br>
+            <p>These roles (from the {$selectedDifficulty.name} difficulty) are NOT in the game (Strigoy can bluff as them, Philosopher gets one of them, etc).</p>
+        {/if}
 
     </div>
 
+    <div slot="bottom" class="center-content center-text padded">
+        {#if $currentlySelectedMod != null}
+            <h2 class="margin-top-4">Mods NOT in game</h2>
+            <br>
+            <p>These mods are NOT in the game.</p>
+
+            <RoleList>
+                {#each getUnusedMods() as mod}
+                    <RoleCard role={mod} on:role-click={() => onClickOnUnusedMod(mod)}/>
+                {/each}
+            </RoleList>
+        {/if}
+    </div>
 </RoleChooserDrawer>

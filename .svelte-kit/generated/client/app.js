@@ -10,7 +10,9 @@ export const nodes = [
 	() => import('./nodes/6'),
 	() => import('./nodes/7'),
 	() => import('./nodes/8'),
-	() => import('./nodes/9')
+	() => import('./nodes/9'),
+	() => import('./nodes/10'),
+	() => import('./nodes/11')
 ];
 
 export const server_loads = [];
@@ -23,7 +25,9 @@ export const dictionary = {
 		"/difficulty-select": [6],
 		"/how-to-play": [7],
 		"/players": [8],
-		"/roles": [9]
+		"/reset": [9],
+		"/role-select": [10],
+		"/roles": [11]
 	};
 
 export const hooks = {

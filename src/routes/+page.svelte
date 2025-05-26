@@ -31,6 +31,7 @@
 </style>
 
 <script>
+	import { isSecretBOTCT } from './../stores/secret-botct-store.js';
     import { onMount } from "svelte";
     import RoundCardPortrait from "../components/RoundCardPortrait.svelte";
     import '../utils.css'
@@ -42,6 +43,13 @@
         willAnimate = true
     })
 
+    page.subscribe(data => {
+        const searchParams = data.url.searchParams
+        if (searchParams.get('BOTCT')) {
+            $isSecretBOTCT = true
+        }
+    })
+
 </script>
 
 <div class="page index">
@@ -49,11 +57,12 @@
     <div class="hero">
         {#if willAnimate}
             <div class="center-content portrait-wrapper" in:fly={{y: -100, delay: 50 }}>
-                <img src="images/Logo.png"/>
+                <RoundCardPortrait role={{name: 'Strigoy', isBig: true, isValid: true}}/>
             </div>
-            <h2 class="space-bottom">Play Blood on the Clocktower</h2>
-            <p class="space-bottom">The free online app for organizing a game of Blood on the Clocktower, for 8 to 20 players.</p>
+            <h2 class="space-bottom">Play Strigoy</h2>
+            <p class="space-bottom">The free online app for organizing a game of Strigoy, for 8 to 20 players. Print and cut the free Strigoy cards at <a>this link</a> and play!</p>
             <div class="flex-content center">
+                <a in:fly={{y: 100, delay: 100 }} class="btn big colorful">Print Files</a>
                 <a in:fly={{y: 100, delay: 150 }} class="btn big colorful" href="/add-players">Play!</a>
             </div>
         {/if}

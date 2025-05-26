@@ -1,18 +1,37 @@
 import { browser } from '$app/environment'
 import { get, writable } from 'svelte/store'
-import { getNightlyRolePriority, getNormalRolePriority, getRole, getRolesByDifficulty, getSetupRolePriority, setupRoles } from '../lib/Database'
+import { COMPLETE, getNightlyRolePriority, getNormalRolePriority, getRole, getRolesByDifficulty, getSetupRolePriority, getSortRolesWithPriorityFunction, setupRoles } from '../lib/Database'
 import { getLocalStorageObject, localStorageWritable } from '../lib/svelteUtils'
-import { getBOTCTRoles, getBOTCTRolesByPeople, getBOTCTSetupRolePriority } from '../lib/BOTCTDatabase'
 
 export const rolesDistribution = localStorageWritable('rolesDistribution', [])
 
-export function autochooseRoles(nPlayers) {
-    const allAvailableRoles = getBOTCTRoles()
+export function autochooseRoles(nPlayers, difficulty) {
+    const allAvailableRoles = getRolesByDifficulty(difficulty)
+    console.log({allAvailableRoles})
     const isRoleInGame = role => rolesInGame.find(roleInGame => roleInGame.name == role.name) != null
-    let rolesInGame = getBOTCTRolesByPeople(nPlayers).map(role => ({...role, isInGame: true}))
-        rolesInGame = rolesInGame.sort((a, b) => getBOTCTSetupRolePriority(a) - getBOTCTSetupRolePriority(b))
+    let rolesInGame = setupRoles(nPlayers, difficulty).map(role => ({...role, isInGame: true}))
+        rolesInGame = getSortRolesWithPriorityFunction(rolesInGame, getNormalRolePriority)
     let rolesNotInGame = allAvailableRoles.filter(role => isRoleInGame(role) == false).map(role => ({...role, isInGame: false}))
     rolesDistribution.set([...rolesInGame, ...rolesNotInGame])
+}
+export function setupCustomDifficultyRoles() {
+    const allAvailableRoles = getRolesByDifficulty(COMPLETE)
+    const paddedRoles = [...allAvailableRoles,
+        getRole('Peasant'),
+        getRole('Peasant'),
+        getRole('Peasant'),
+        getRole('Peasant'),
+        getRole('Peasant'),
+        getRole('Peasant'),
+        getRole('Cultist'),
+        getRole('Cultist'),
+        getRole('Strigoy'),
+        getRole('Strigoy')
+    ]
+    const roles = getSortRolesWithPriorityFunction(paddedRoles, getNormalRolePriority)
+        .map(role => ({...role, isInGame: true}))
+    rolesDistribution.set(roles)
+    
 }
 
 if (browser) {

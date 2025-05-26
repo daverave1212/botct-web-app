@@ -41,6 +41,15 @@
     export let onClickOnRole
     export let onClickOutside
 
+    $:rolesInGame = roleStates
+        .keys()
+        .filter(i => roleStates[i].isInGame != false)
+        .map(i => roleStates[i])
+    $:rolesNotInGame = roleStates
+        .keys()
+        .filter(i => roleStates[i].isInGame == false)
+        .map(i => roleStates[i])
+
     function onPortraitClick(i) {
         if (roleStates[i].isValid == false) {
             return
@@ -62,7 +71,7 @@
 
 
     <RoleList>
-        {#each roleStates.keys() as i}
+        {#each roleStates.keys() as i (roleStates[i].name + i)}
             {#if roleStates[i].isInGame != false}
                 <RoleCard role={roleStates[i]} on:role-click={(evt) => onPortraitClick(i)}/>
             {/if}
@@ -74,7 +83,7 @@
     <!--  -->
 
     <RoleList>
-        {#each roleStates.keys() as i}
+        {#each roleStates.keys() as i (roleStates[i].name + i)}
             {#if roleStates[i].isInGame == false}
                 <RoleCard role={roleStates[i]} on:role-click={(evt) => onPortraitClick(i)}/>
             {/if}

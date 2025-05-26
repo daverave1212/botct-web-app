@@ -2,26 +2,33 @@
     :root {
         --role-chooser-image-size: 20vw;
         --role-chooser-image-size-big: 20vh;
+        --badge-size: 4.5vw;
     }
     .image-wrapper {
         width: var(--role-chooser-image-size);
         height: var(--role-chooser-image-size);
-        overflow: hidden;
-        border-radius: 50%;
         position: relative;
+    }
+    .image-wrapper .content {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        position: inherit;
     }
     .image-wrapper.big {
         width: var(--role-chooser-image-size-big);
         height: var(--role-chooser-image-size-big);
     }
     .image-wrapper img {
-        --width: calc(2 * var(--role-chooser-image-size));
+        --width: calc(1 * var(--role-chooser-image-size));
         width: var(--width);
-        margin-left: calc(-0.25 * var(--width));
-        margin-top: calc(-0.07 * var(--width));
+        /* margin-left: calc(-0.2 * var(--width));
+        margin-top: calc(-0.05 * var(--width)); */
     }
     .image-wrapper.big img {
-        --width: calc(2 * var(--role-chooser-image-size-big));
+        --width: calc(1.5 * var(--role-chooser-image-size-big));
+        margin-left: calc(-0.15 * var(--width));
     }
     .grayscale {
         -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
@@ -41,8 +48,8 @@
         line-height: 1.25rem;
         width: calc(1.25 * var(--role-chooser-image-size));
         
-        bottom: 0.25rem;
-        left: calc(-0.05 * var(--role-chooser-image-size));
+        bottom: 0.6rem;
+        left: calc(-0.02 * var(--role-chooser-image-size));
         transform: rotate(-15deg);
     }
     .ribbon.evil {
@@ -50,11 +57,35 @@
         left: calc(-0.25 * var(--role-chooser-image-size));
         transform: rotate(-25deg);
     }
+
+    .badge {
+        position: absolute;
+        width: var(--badge-size);
+        height: var(--badge-size);
+        border-radius: 50%;
+
+        color: white;
+        background-color: rgb(46, 46, 46);
+        transform: rotate(15deg);
+
+        text-align: center;
+        font-family: SingleDay;
+
+        font-size: 1rem;
+        line-height: var(--badge-size);
+
+        top: calc(0.12 * var(--role-chooser-image-size));
+        right: calc(-0.08 * var(--role-chooser-image-size));
+
+        box-sizing: content-box;
+        border: solid 3px white;
+    }
 </style>
 
 <script>
     import { createEventDispatcher } from "svelte";
-    import { NIGHTLY, OTHER_CATEGORY, REGULAR, SETUP, SPECIAL_NIGHTLY, SPECIAL_SETUP, WEREWOLVES } from "../lib/Database";
+    import { isSecretBOTCT } from "../stores/secret-botct-store";
+    import { EVIL_COLOR, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR, OTHER_CATEGORY, PINK_COLOR, REGULAR, SETUP, SETUP_COLOR, SPECIAL_COLOR, SPECIAL_NIGHTLY, SPECIAL_SETUP, WEREWOLVES } from "../lib/Database";
 
     const categoryToRibbon = {
         [REGULAR]: null,
@@ -67,32 +98,96 @@
 
     const dispatch = createEventDispatcher();
 
-    export let name
-    export let isValid
-    export let team
-    export let isBig = false
-    export let src = null
-    export let category
-    export let ribbonText
-    export let ribbonColor
+    export let role
+    export let hasRibbon = true
+    export let hasBadge = true
 
-    $: imagePath = src != null? src : `images/roles/${name}.png`
-    $: ribbon = category != null && categoryToRibbon[category] != null?
-        categoryToRibbon[category] :
+    let {
+        name,
+        team,
+        isBig = false,
+        src,
+        category,
+        color,
+        isDemon,
+        ribbonColor,
+        ribbonText,
+        locationWorth
+    } = role
+    
+
+    $: imagePath = src != null? src : `images/role-thumbnails/${name}.webp`
+    $: ribbon =
+        !hasRibbon? null:
+        (ribbonText != null && ribbonColor != null)? { text: ribbonText, color: ribbonColor } :
+        (category != null && categoryToRibbon[category] != null)? categoryToRibbon[category] :
         null
+    $: badgeText =
+        !hasBadge?
+            null:
+        role.locationWorth != null?
+            (role.locationWorth > 0?
+                '+X':
+                '-X'):
+        role.worth == null?
+            null:
+        role.worth <= -2?
+            '-2':
+        role.worth <= -1?
+            '-1':
+        role.worth == 0?
+            '':
+        role.worth >= 2?
+            '+2':
+        role.worth >= 1?
+            '+1':
+        '?'
+    const badgeToColorMapping = {
+        '-2': EVIL_COLOR,
+        '-1': EVIL_COLOR,
+        '': SPECIAL_COLOR,
+        '+1': SETUP_COLOR,
+        '+2': 'rgb(30, 120, 250)',
+        '?': PINK_COLOR,
+        '+X': SETUP_COLOR,
+        '-X': EVIL_COLOR
+    }
+    const borderColor =
+        color == null?
+            null
+        :color == 'Red'?
+            'rgb(225, 0, 0)'
+        :color == 'Yellow'?
+            'rgb(255, 160, 0)'
+        :color == 'Green'?
+            'rgb(0, 190, 150)'
+        :color == 'Purple'?
+            'rgb(180, 65, 200)'
+        :null
+
+    const borderStyle = borderColor == null? '': `
+        box-shadow: 1px 1px 7px 6px ${borderColor};
+        -webkit-box-shadow: 1px 1px 7px 6px ${borderColor};
+        -moz-box-shadow: 1px 1px 7px 6px ${borderColor};
+    `
+        
 </script>
 
 <div class="image-wrapper {isBig? 'big': ''}" on:click={(evt) => dispatch('click', evt)}>
-    {#if isBig != true}
-        {#if team == WEREWOLVES}
-            <div class="ribbon evil" style="background-color: rgb(194, 5, 30)">EVIL</div>
+    <div class="content" style={borderStyle}>
+        {#if isBig != true}
+            {#if isDemon}
+                <div class="ribbon evil" style={`background-color: ${EVIL_COLOR}`}>DEMON</div>
+            {/if}
+            {#if ribbon != null}
+                <div class="ribbon" style="background-color: {ribbon.color}">
+                    { ribbonText != null ? ribbonText : ribbon.text}
+                </div>
+            {/if}
         {/if}
-        {#if ribbon != null}
-            <!-- <div class="ribbon">{ribbonText}</div> -->
-            <div class="ribbon" style="background-color: {ribbon.color}">
-                { ribbonText != null ? ribbonText : ribbon.text}
-            </div>
-        {/if}
+        <img src={imagePath} class="{role.isValid == false? 'grayscale': ''}"/>
+    </div>
+    {#if badgeText != null && badgeToColorMapping[badgeText] != null}
+        <div class="badge" style="background-color: {badgeToColorMapping[badgeText]}">{badgeText}</div>
     {/if}
-    <img src={imagePath} class="{isValid == false? 'grayscale': ''}"/>
 </div>
