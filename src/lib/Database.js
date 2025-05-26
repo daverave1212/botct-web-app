@@ -1356,7 +1356,8 @@ export const getRoles = () => {
         {
             "name": "Pukka",
             "difficulty": BAD_MOON_RISING,
-            "effect": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy."
+            "effect": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+            isDemon: true
         },
         {
             "name": "Riot",
@@ -1423,6 +1424,16 @@ export function getTestRoles() {
         ...role,
         isInGame: randomOf(true, false)
     }))
+}
+export function getSectionFilters() {
+    const allRoles = getRoles()
+    const difficulties = getAllRoleDifficulties()
+    const filterFunctions = []
+    for (const difficulty of difficulties) {
+        const filter = i => allRoles[i].difficulty == difficulty
+        filterFunctions.push(filter)
+    }
+    return filterFunctions
 }
 export function getAllRoleDifficulties() {
     const roles = getRoles()

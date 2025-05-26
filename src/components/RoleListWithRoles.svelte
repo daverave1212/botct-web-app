@@ -10,8 +10,19 @@
     
     const dispatch = createEventDispatcher()
 
+    function isRoleIFiltered(i, filters) {
+        const roleName = roles[i].name.toLowerCase()
+        for (const f of filters) {
+            if (roleName.indexOf(f.toLowerCase()) != -1) {
+                return true
+            }
+        }
+        return false
+    }
+
+    $:textFilters = filter?.split('+')?.map(f => f.trim())
     $:filteredRoleIndices = Object.keys(roles).filter(i => filter == null? true: (
-        roles[i].name.toLowerCase().indexOf(filter.toLowerCase()) != -1
+        isRoleIFiltered(i, textFilters)
     ))
 
 </script>

@@ -10,10 +10,19 @@
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { ADVANCED, TROUBLE_BREWING, BAD_MOON_RISING, difficultyDescriptions, difficultyNames, getAllRoleDifficulties, getDifficultyByFirstLetter, getFirstLetterOfDifficulty, getLocationCards, getNormalRolePriority, getRoles, getRolesByDifficulty, getRolesForDifficulty, getSortRolesWithPriorityFunction, MORNING_COLOR, NIGHTLY_COLOR } from "../../lib/Database";
     import { getMods } from "../../lib/ModsDatabase";
+    import { browser } from '$app/environment'
 
     let currentInspectorObject = null
     let filterValue = ''
     let isShowingSettings = false
+
+    $:queryParams = browser? new URLSearchParams(window.location.search): null
+    $:rolesJsonFromUrl = queryParams?.get('custom-roles')
+    $:rolesFromUrl = rolesJsonFromUrl == null? null: JSON.parse(rolesJsonFromUrl)
+    $: {
+        console.log({queryParams, rolesJsonFromUrl, rolesFromUrl})
+    }
+
 
     function onClickOnRole(obj) {
         currentInspectorObject = obj

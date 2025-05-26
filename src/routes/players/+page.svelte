@@ -19,7 +19,7 @@
     import SideMenu from "../../components-standalone/SideMenu.svelte";
     import DrawerPage from "../../components-standalone/DrawerPage.svelte";
     import RoleChooserDrawer from "../../components/RoleChooserDrawer.svelte";
-    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyNames, getAllRoleDifficulties, getRole, getRoles, getRolesByDifficulty, INTERMEDIATE, NIGHTLY, SETUP, SPECIAL_NIGHTLY, SPECIAL_SETUP } from "../../lib/Database";
+    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyNames, getAllRoleDifficulties, getRole, getRoles, getRolesByDifficulty, getSectionFilters, INTERMEDIATE, NIGHTLY, SETUP, SPECIAL_NIGHTLY, SPECIAL_SETUP } from "../../lib/Database";
     import Modal from "../../components-standalone/Modal.svelte";
     import { executeBoolCallbackArray, isNumber, randomInt } from "../../lib/utils";
     import Tooltip from "../../components-standalone/Tooltip.svelte";
@@ -195,16 +195,6 @@
     function onRemovePlayer(i) {
         const player = $addedPlayers[i]
         removePlayer(i)
-    }
-
-    function getSectionFilters() {
-        const difficulties = getAllRoleDifficulties()
-        const filterFunctions = []
-        for (const difficulty of difficulties) {
-            const filter = i => allRoles[i].difficulty == difficulty
-            filterFunctions.push(filter)
-        }
-        return filterFunctions
     }
 
     function openModal(text, buttonText, callback) {
