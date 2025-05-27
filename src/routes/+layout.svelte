@@ -9,7 +9,6 @@
     import { fly } from "svelte/transition";
     import { onMount } from "svelte";
     import { addedPlayers } from "../stores/added-players-store";
-    import { selectedDifficulty } from "../stores/difficulty-store";
 
     let isBurgerOpen = false
 
@@ -32,9 +31,9 @@
 <Nav
     options={[
         { name: 'Play', href:"/"},
-        { name: 'How To Play', href:"/how-to-play"},
         { name: 'All Roles', href:"/all-roles"},
-        { name: 'Print', href:"/card"},
+        { name: 'Script Maker', href:"/script-maker"},
+        { name: 'Scripts', href:"/custom-script"},
         { name: 'Reset App', href:"/reset"}
     ]}
     isBurgerOpen={isBurgerOpen} setIsBurgerOpen={bool => isBurgerOpen = bool}

@@ -52,5 +52,7 @@
                 <p class="margin-top-2" style="color: blue"><b>Tips for narrator</b>: {role.narratorNotes}</p>
             {/if}
         {/if}
+
+        <slot></slot>
     </div>
 </DrawerPage>

@@ -6,62 +6,48 @@
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { browser } from '$app/environment'
     import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR } from "../../lib/Database";
-    import { getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
-    import { setCustomScript } from "../../stores/custom-scripts-store";
-    import { page } from '$app/stores'
+    import { getScriptFromURL, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
+    import { customScripts } from "../../stores/custom-scripts-store"
+    import { page } from '$app/stores';
 
     const allRoles = getRoles()
 
+    let openScriptName = null
     let qrCodeWrapperDiv
     let currentInspectorObject = null
     let chosenRoles = []
     let isRoleChooserOpen = false
+    
+    $:roleIs = chosenRoles.map(role => role.i)
+    $:scriptMakerHref = getUrlWithParams('/script-maker', roleIs.length == 0? {}: {
+        'custom-roles': roleIs
+    })
 
-    $:isQRButtonEnabled = chosenRoles.length > 0
     $:customScript = getScriptFromURLSvelte($page.url)
     $: {
-        const { customRoleNames } = customScript
+        const { customRoleNames, scriptName } = customScript
         if (customRoleNames != null) {
             chosenRoles = customRoleNames.map(name => getRole(name))
+            openScriptName = scriptName
         }
     }
 
-    function onOpenRolesButtonClick(evt) {
-        isRoleChooserOpen = true
-    }
     function onRoleChosen(roleI) {
         console.log(`Chose role ${roleI}`)
         chosenRoles = [...chosenRoles, allRoles[roleI]]
     }
-    function removeRole(role) {
-        chosenRoles = chosenRoles.filter(r => r.name != role.name)
-    }
     async function saveAndGetQR() {
-
-        const scriptName = prompt('Enter script name')
-
-        const roleIs = chosenRoles.map(role => role.i)
         const queryParamsObj = {
-            'script-name': scriptName,
+            'script-name': openScriptName,
             'custom-roles': roleIs
         }
         const completeUrl = getUrlWithParams('/custom-script', queryParamsObj)
-
-        async function saveScript() {
-            if (scriptName == null || scriptName.trim().length == 0) {
-                alert('Cannot have an empty name for a script')
-                return
-            }
-            setCustomScript(scriptName, roleIs)
-        }
-        saveScript()
         await showQR(qrCodeWrapperDiv, completeUrl)
     }
 
 </script>
 
 <InspectRoleDrawer isOpen={currentInspectorObject != null} role={currentInspectorObject} setIsOpen={() => currentInspectorObject = null}>
-    <button class="btn red margin-top-4" on:click={() => removeRole(currentInspectorObject)}>Remove</button>
 </InspectRoleDrawer>
 
 <RoleChooserManyDrawer
@@ -78,24 +64,34 @@
 
 <div class="page">
 
-    <h1 class="center-text margin-top-4">Script Maker</h1>
+    <h1 class="center-text margin-top-4">My Scripts</h1>
 
-    <div class="center-content margin-top-2">
-        <button class="btn blue" on:click={onOpenRolesButtonClick}>Open Roles</button>
+    <div class="flex wrap margin-top-2 gap-half">
+        {#each Object.keys($customScripts) as customScriptName}
+            <button class="btn colorful margin-top-1" on:click={() => {
+                const scriptRoles = $customScripts[customScriptName]
+                chosenRoles = scriptRoles.map(name => getRole(name))
+                openScriptName = customScriptName
+            }}>{customScriptName}</button>
+        {/each}
     </div>
 
-    <RoleListWithRoles
-        roles={chosenRoles}
-        hasBadges={false}
-        hasRibbons={true}
-        on:role-click={evt => {
-            currentInspectorObject = evt.detail.role
-            console.log(evt.detail.role)
-        }}
-    />
+    {#if openScriptName != null}
+        <h2 class="center-text margin-top-4">{openScriptName}</h2>
+        <RoleListWithRoles
+            roles={chosenRoles}
+            hasBadges={false}
+            hasRibbons={true}
+            on:role-click={evt => {
+                currentInspectorObject = evt.detail.role
+                console.log(evt.detail.role)
+            }}
+        />
+    {/if}
 
     <div class="center-content margin-top-4">
-        <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQR} disabled={!isQRButtonEnabled}>Save & Get QR</button>
+        <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQR} disabled='{!chosenRoles.length > 0}'>Show QR</button>
+        <a in:fly={{y: 100, delay: 150 }} class="btn colorful margin-top-1" href={scriptMakerHref}>Open In Script Maker</a>
         <div key="script-maker-qr-wrapper" bind:this={qrCodeWrapperDiv}></div>
     </div>
 

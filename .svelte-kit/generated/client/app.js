@@ -23,13 +23,13 @@ export const dictionary = {
 		"/add-players": [3],
 		"/all-roles": [4],
 		"/card": [5],
-		"/difficulty-select": [6],
+		"/custom-script": [6],
 		"/how-to-play": [7],
 		"/players": [8],
 		"/reset": [9],
 		"/role-select": [10],
-		"/roles": [11],
-		"/script-maker": [12]
+		"/script-maker": [11],
+		"/script-select": [12]
 	};
 
 export const hooks = {

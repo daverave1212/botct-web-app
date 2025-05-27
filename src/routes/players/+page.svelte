@@ -35,11 +35,9 @@
     import SimpleContact from '../../components/Contact/SimpleContact.svelte';
     import ColorDisplay from '../../components/ColorDisplay.svelte';
     import LocationPicker from '../../components/LocationPicker.svelte';
+    import { chosenScriptRoleNames } from '../../stores/scripts-store.js';
     
-    $:{
-        console.log('added:')
-        console.log($addedPlayers)
-    }
+    $:availableRoles = $chosenScriptRoleNames == null? []: $chosenScriptRoleNames
 
     $: shouldShowRoleTooltip = 
         $hasSetRoleTooltip == false &&
@@ -92,10 +90,8 @@
 
     // Color drawer
     let currentColor = null
-    $: isColorDrawerOpen = currentColor != null
 
     // Role chooser
-    let allRoles = getRoles()
     let isRoleChooserOpen = false
     let currentlySelectedRoleI
 
@@ -117,8 +113,10 @@
     }
     function changeRole(playerI, newRoleI) {
         console.log(`Player ${playerI} clicked on role ${newRoleI}`)
-        const newRole = allRoles[newRoleI]
+        const newRoleName = availableRoles[newRoleI]
+        const newRole = getRole(newRoleName)
         isRoleChooserOpen = false
+        console.log({newRole, state: $addedPlayers[playerI] })
         const playerState = $addedPlayers[playerI]
         const previousRole = playerState.role
         const newPlayerState = {
@@ -239,11 +237,11 @@
 
 <RoleChooserManyDrawer
     isOpen={isRoleChooserOpen}
-    roles={getRoles()}
+    roles={availableRoles.map(name => getRole(name))}
     
-    sectionFilters={getSectionFilters()}
-    sectionTitles={getAllRoleDifficulties().map(difficulty => difficultyNames[difficulty])}
-    sectionTexts={getAllRoleDifficulties().map(difficulty => '')}
+    sectionFilters={[_ => true]}
+    sectionTitles={['Roles']}
+    sectionTexts={['']}
 
     onClickOnRole={clickedRoleI => changeRole(currentlySelectedRoleI, clickedRoleI)}
     onClickOutside={() => closeRoleChooserDrawerWithoutSideEffects()}
@@ -358,17 +356,13 @@
         {/each}
 
         <button class="add-contact-button shadowed rounded" on:click={onClickOnAdd} style="position: relative;">
-            +
+            <div class="center-content flex-column center-text" style="width: 100%; height: 100%; line-height: 100%; font-size: 100%;">
+                +
+            </div>
         </button>
 
 
         <h3 class="center-text margin-top-1">To restart the game, open the menu and hit Play. All players are saved.</h3>
     
     </ContactList>   
-    
-    
-    <ColorDisplay
-        className="rounded shadowed margin-top-1"
-        onClickOnColor={color => currentColor = color}
-    />
 </div>

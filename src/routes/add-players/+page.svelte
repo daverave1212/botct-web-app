@@ -76,10 +76,12 @@
             <Tooltip isShown={$hasAddPlayerTooltip} left="50%" top="80%" width="200px">
                 Add all players one by one (except the Narrator).
             </Tooltip>
-            +
+            <div class="center-content flex-column center-text" style="width: 100%; height: 100%; line-height: 100%; font-size: 100%;">
+                +
+            </div>
         </button>
         
-        <a class="btn big {$addedPlayers.length > 0? 'colorful' : 'gray'}" href="/role-select" style="position: relative;">
+        <a class="btn big {$addedPlayers.length > 0? 'colorful' : 'gray'}" href="/script-select" style="position: relative;">
             Next
         </a>
     </ContactList>

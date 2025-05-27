@@ -16,6 +16,9 @@
         overflow: hidden;
         position: inherit;
     }
+    .image-wrapper .content.can-overflow {
+        overflow: visible;
+    }
     .image-wrapper.big {
         width: var(--role-chooser-image-size-big);
         height: var(--role-chooser-image-size-big);
@@ -101,6 +104,7 @@
     export let role
     export let hasRibbon = true
     export let hasBadge = true
+    export let canOverflow = false
 
     let {
         name,
@@ -174,7 +178,7 @@
 </script>
 
 <div class="image-wrapper {isBig? 'big': ''}" on:click={(evt) => dispatch('click', evt)}>
-    <div class="content" style={borderStyle}>
+    <div class={`content ${canOverflow? 'can-overflow': ''}`} style={borderStyle}>
         {#if isBig != true}
             {#if isDemon}
                 <div class="ribbon evil" style={`background-color: ${EVIL_COLOR}`}>DEMON</div>
