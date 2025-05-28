@@ -33,6 +33,9 @@
         --width: calc(1.5 * var(--role-chooser-image-size-big));
         margin-left: calc(-0.15 * var(--width));
     }
+    .image-wrapper img.outsider {
+        filter: hue-rotate(50deg);
+    }
     .grayscale {
         -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
         filter: grayscale(100%);
@@ -54,6 +57,7 @@
         bottom: 0.6rem;
         left: calc(-0.02 * var(--role-chooser-image-size));
         transform: rotate(-15deg);
+        z-index: 2;
     }
     .ribbon.evil {
         top: 0.5rem;
@@ -146,6 +150,8 @@
         role.worth >= 1?
             '+1':
         '?'
+    $:isOutsider = ribbonText == 'OUTSIDER'
+
     const badgeToColorMapping = {
         '-2': EVIL_COLOR,
         '-1': EVIL_COLOR,
@@ -189,7 +195,7 @@
                 </div>
             {/if}
         {/if}
-        <img src={imagePath} class="{role.isValid == false? 'grayscale': ''}"/>
+        <img src={imagePath} class="{role.isValid == false? 'grayscale': isOutsider? 'outsider': ''}"/>
     </div>
     {#if badgeText != null && badgeToColorMapping[badgeText] != null}
         <div class="badge" style="background-color: {badgeToColorMapping[badgeText]}">{badgeText}</div>
