@@ -5,7 +5,7 @@
     import RoleChooserManyDrawer from "../../components/RoleChooserManyDrawer.svelte";
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { browser } from '$app/environment'
-    import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR } from "../../lib/Database";
+    import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR, sortRolesNormal } from "../../lib/Database";
     import { getScriptFromURL, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
     import { customScripts } from "../../stores/custom-scripts-store"
     import { page } from '$app/stores';
@@ -79,7 +79,7 @@
     {#if openScriptName != null}
         <h2 class="center-text margin-top-4">{openScriptName}</h2>
         <RoleListWithRoles
-            roles={chosenRoles}
+            roles={sortRolesNormal(chosenRoles)}
             hasBadges={false}
             hasRibbons={true}
             on:role-click={evt => {
