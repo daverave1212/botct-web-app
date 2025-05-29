@@ -173,14 +173,14 @@
     }
 
     function onClickOnSortNight() {
-        const filterExtraRequiredRolesFunc = role => role => role.category == NIGHTLY || role.category == SPECIAL_NIGHTLY
-        addMissingRequiredRoles(filterExtraRequiredRolesFunc)
+        // const filterExtraRequiredRolesFunc = role => role => role.category == NIGHTLY || role.category == SPECIAL_NIGHTLY
+        // addMissingRequiredRoles(filterExtraRequiredRolesFunc)
         sortCurrentRolesNightly()
     }
     function onClickOnSortSetup() {
         $hasSortTooltip = false
-        const filterExtraRequiredRolesFunc = role => role => role.category == SETUP || role.category == SPECIAL_SETUP
-        addMissingRequiredRoles(filterExtraRequiredRolesFunc)
+        // const filterExtraRequiredRolesFunc = role => role => role.category == SETUP || role.category == SPECIAL_SETUP
+        // addMissingRequiredRoles(filterExtraRequiredRolesFunc)
         sortCurrentRolesSetup()
     }
     function onClickOnCleanup() {
