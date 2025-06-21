@@ -534,7 +534,8 @@ export const getRoles = () => {
         {
             "name": "Mutant",
             "difficulty": SECTS_AND_VIOLETS,
-            "effect": "If you are mad about being an Outsider, you might be executed.",
+            "effect": "If you ever claim to be or insinuate you are an (or any) Outsider, you die.",
+            "notes": "If you are mad about being an Outsider, you might be executed.",
             ribbonColor: NIGHTLY_COLOR,
             ribbonText: "OUTSIDER"
         },
