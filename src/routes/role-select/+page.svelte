@@ -8,7 +8,7 @@
     import RoleCard from "../../components/RoleCard.svelte";
     import RoleList from "../../components/RoleList.svelte";
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
-    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyDescriptions, difficultyNames, EVIL, evilsByPlayers, getAllRoleDifficulties, getNormalRolePriority, getRoles, getRolesByDifficulty, getRolesForDifficulty, getSortRolesWithPriorityFunction, INTERMEDIATE, NEGATIVE, STRIGOY, WEREWOLVES } from "../../lib/Database";
+    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyDescriptions, difficultyNames, EVIL, evilsByPlayers, getAllRoleDifficulties, getNormalRolePriority, getRoleNumbersByPlayers, getRoles, getRolesByDifficulty, getRolesForDifficulty, getSortRolesWithPriorityFunction, INTERMEDIATE, NEGATIVE, STRIGOY, WEREWOLVES } from "../../lib/Database";
     import { getMods } from "../../lib/ModsDatabase";
     import { selectedRoles } from '../../stores/selected-roles-store'
     import { goto } from '$app/navigation'
@@ -23,6 +23,8 @@
     $: nNegatives = rolesSetup.filter(roleType => roleType == NEGATIVE).length
     $: nMinPeasants = Math.floor($addedPlayers.length / 6) + 1
     $: nMaxPeasants = Math.floor($addedPlayers.length / 3) + 1
+
+    $: [ nTownsfolk, nOutsiders, nMinions, nDemons ] = getRoleNumbersByPlayers($addedPlayers.length)
 
     selectedRoles.subscribe(newSelectedRoles => {
         allAvailableRoles = allAvailableRoles.map(role => ({...role, isValid: !isRoleSelected(newSelectedRoles, role)}))
@@ -57,21 +59,14 @@
 
 <div class="page">
 
-    <h2 class="center-text margin-top-4">Setup Deck</h2>
+    <h2 class="center-text margin-top-4">Roles Setup</h2>
     <p class="center-text margin-top-2">
-        To setup a game with <b>{$addedPlayers.length}</b> players, make a deck of <b>9 cards</b> with roles as follows:
+        To setup a game with <b>{$addedPlayers.length}</b> players:
     </p>
-    <p class="center-text margin-top-1"><b>{nEvils}</b> Strigoy</p>
-    <p class="center-text"><b>{nNegatives}</b> Negative Roles</p>
-    <p class="center-text"><b>{nMinPeasants} to {nMaxPeasants}</b> Peasants</p>
-    <p class="center-text">Fill the rest of the deck with good roles</p>
-
-    <h3 class="center-text margin-top-2">Unused Roles</h3>
-    <p class="center-text margin-top-1">
-        Take all the unused roles from the <b>sets you used</b> and put them in a separate (they might be used later).
-        <br>Also add the 'missing' Peasants - there should be a total of {nMaxPeasants} in both decks <i>(e.g. 2 in the roles deck of {$addedPlayers.length} cards, and {nMaxPeasants - 2} in the unused roles pile)</i>. Remember to also add the unused Negative roles.
-        <br>In the next step, assigning a role from a set to a player will automatically include that set in the game.
-    </p>
+    <p class="center-text margin-top-1" style="color: blue;"><b>Townsfolk: {nTownsfolk}</b></p>
+    <p class="center-text margin-top-1" style="color: purple;"><b>Outsiders: {nOutsiders}</b></p>
+    <p class="center-text margin-top-1" style="color: red;"><b>Minions: {nMinions}</b></p>
+    <p class="center-text margin-top-1" style="color: red;"><b>Demon: {nDemons}</b></p>
 
     <div class="flex-content center-content margin-top-2">
         <a class="btn big colorful" style="width: 40vw" href="/players" on:click|preventDefault={() => goto('/players')}>Next</a>

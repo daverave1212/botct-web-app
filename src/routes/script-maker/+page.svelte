@@ -6,7 +6,7 @@
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { browser } from '$app/environment'
     import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR, sortRolesNormal } from "../../lib/Database";
-    import { getFullUrl, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
+    import { encodeScriptNameAndRoleIs, getFullUrl, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
     import { setCustomScript } from "../../stores/custom-scripts-store";
     import { page } from '$app/stores'
 
