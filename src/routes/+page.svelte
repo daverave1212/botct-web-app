@@ -59,10 +59,10 @@
             <div class="center-content portrait-wrapper" in:fly={{y: -100, delay: 50 }}>
                 <RoundCardPortrait role={{ src: '/images/BOTCT.avif', isBig: true, isValid: true}} canOverflow={true}/>
             </div>
-            <h2 class="space-bottom">Play Strigoy</h2>
-            <p class="space-bottom">The free online app for organizing a game of Strigoy, for 8 to 20 players. Print and cut the free Strigoy cards at <a>this link</a> and play!</p>
+            <h2 class="space-bottom">Blood on the Clocktower</h2>
+            <p class="space-bottom">The free online app for organizing a game of BotC. Get started!</p>
             <div class="flex-content center">
-                <a in:fly={{y: 100, delay: 100 }} class="btn big colorful">Print Files</a>
+                <a in:fly={{y: 100, delay: 100 }} class="btn big colorful" href="/custom-script">Roles</a>
                 <a in:fly={{y: 100, delay: 150 }} class="btn big colorful" href="/add-players">Play!</a>
             </div>
         {/if}

@@ -19,23 +19,21 @@
     import SideMenu from "../../components-standalone/SideMenu.svelte";
     import DrawerPage from "../../components-standalone/DrawerPage.svelte";
     import RoleChooserDrawer from "../../components/RoleChooserDrawer.svelte";
-    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyNames, getAllRoleDifficulties, getRole, getRoles, getRolesByDifficulty, getSectionFilters, INTERMEDIATE, NIGHTLY, SETUP, SPECIAL_NIGHTLY, SPECIAL_SETUP } from "../../lib/Database";
+    import { ADVANCED, BAD_MOON_RISING, COMPLETE, difficultyNames, getAllRoleDifficulties, getRole, getRoles, getRolesByDifficulty, getSectionFilters, INTERMEDIATE, isRoleNameOutsider, NIGHTLY, SETUP, SPECIAL_NIGHTLY, SPECIAL_SETUP } from "../../lib/Database";
     import Modal from "../../components-standalone/Modal.svelte";
-    import { executeBoolCallbackArray, isNumber, randomInt } from "../../lib/utils";
     import Tooltip from "../../components-standalone/Tooltip.svelte";
     import { addedPlayers, addPlayer, addPlayerAdded, addPlayerTemporary, getAddedPlayerRoleDifficulties, removePlaceholderRoles, removePlayer, setPlayerStateI } from "../../stores/added-players-store";
     import { sortCurrentRolesNightly, sortCurrentRolesSetup } from "../../stores/added-players-store";
     import { hasExpandTooltip, hasInspectTooltip, hasSetRoleTooltip, hasSortTooltip } from '../../stores/tutorial-store';
-    import ModContact from '../../components/Contact/ModContact.svelte';
     import { currentlySelectedMod } from '../../stores/mods-store.js';
     import { isSecretBOTCT } from '../../stores/secret-botct-store.js';
     import RoleChooserManyDrawer from '../../components/RoleChooserManyDrawer.svelte';
 
     import '../../components/add-contact-button.css'
-    import SimpleContact from '../../components/Contact/SimpleContact.svelte';
-    import ColorDisplay from '../../components/ColorDisplay.svelte';
     import LocationPicker from '../../components/LocationPicker.svelte';
     import { chosenScriptRoleNames } from '../../stores/scripts-store.js';
+    import { randomizeArray } from '../../lib/utils.js';
+    import RoleCard from '../../components/RoleCard.svelte';
     
     $:availableRoles = $chosenScriptRoleNames == null? []: $chosenScriptRoleNames
 
@@ -87,6 +85,10 @@
     function closeModal() {
         currentModalObject = null
     }
+
+    // Bluff drawer
+    let isBluffDrawerOpen = false
+    let bluffsBeingShown = []
 
     // Color drawer
     let currentColor = null
@@ -202,6 +204,26 @@
         modalOnConfirm = callback
     }
 
+    function showBluffs() {
+        const roleNamesInGame = $addedPlayers.map(p => p?.role)
+        console.log({roleNamesInGame})
+        const roleNamesNotInGame = $chosenScriptRoleNames.filter(rn => !roleNamesInGame.includes(rn))
+        console.log({roleNamesNotInGame})
+        const goodRolesNotInGame = roleNamesNotInGame
+            .map(rn => getRole(rn))
+            .filter(r => r != null)
+            .filter(r =>
+                r.isDemon != true &&
+                r.isBluffable != false &&
+                r.ribbonText != 'EVIL'
+            )
+        console.log({goodRolesNotInGame})
+        const shuffledRolesNotInGame = randomizeArray(goodRolesNotInGame)
+        const top3 = shuffledRolesNotInGame.slice(0, 3)
+        bluffsBeingShown = top3
+        isBluffDrawerOpen = true
+    }
+
 </script>
 
 <Modal isOpen={isModalOpen} setIsOpen={bool => isModalOpen = bool}>
@@ -218,11 +240,14 @@
 </Modal>
 
 <DrawerPage
-    isOpen={currentColor != null}
+    isOpen={isBluffDrawerOpen}
     zIndex="486 !important"
-    on:click={() => currentColor = null}
+    on:click={() => isBluffDrawerOpen = false}
 >
-    <div style={`width: 100vw; height: 100vh; background-color: ${currentColor};`}>
+    <div class="center-content gap-1 flex-column">
+        {#each bluffsBeingShown as role (role.name)}
+            <RoleCard role={{...role, isBig: true}}/>
+        {/each}
     </div>
 </DrawerPage>
 
@@ -262,8 +287,6 @@
     <Tooltip isShown={$hasSetRoleTooltip} top="calc(var(--contact-header-height) * 1.5)" left="50%" width="70vw">Set each player's role to the card they drew.</Tooltip>
     <Tooltip isShown={shouldShowRoleTooltip} top="calc(var(--contact-header-height) * 1.5)" left="calc(7.5vw + 0.75rem + var(--contact-header-height) / 2)" width="70vw" isLefty={true}>Click on the image to see role details.</Tooltip>
     <Tooltip isShown={shouldShowExpandTooltip} top="calc(var(--contact-header-height) * 1.5)" left="50%" width="70vw">Click to show more options (click again to hide).</Tooltip>
-
-    <LocationPicker></LocationPicker>
 
     <ContactList className="margin-top-1">
 
@@ -360,7 +383,11 @@
                 +
             </div>
         </button>
-
+        <button class="add-contact-button colorful shadowed rounded" on:click={showBluffs} style="position: relative; color: white;">
+            <div class="center-content flex-column center-text" style="width: 100%; height: 100%; line-height: 100%; font-size: 100%;">
+                Show Bluffs
+            </div>
+        </button>
 
         <h3 class="center-text margin-top-1">To restart the game, open the menu and hit Play. All players are saved.</h3>
     

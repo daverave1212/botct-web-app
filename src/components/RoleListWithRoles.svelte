@@ -30,7 +30,7 @@
 </script>
 
 <div class="role-list">
-    {#each filteredRoleIndices as i (usedRoles[i].name + i)}
+    {#each filteredRoleIndices as i (usedRoles[i]?.name + i)}
         <RoleCard hasRibbon={hasRibbons} hasBadge={hasBadges} role={usedRoles[i]} on:role-click={_ => dispatch('role-click', { role: usedRoles[i], i: i })}/>
     {/each}
 </div>

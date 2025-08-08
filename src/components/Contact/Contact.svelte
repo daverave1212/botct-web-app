@@ -7,6 +7,7 @@
                 <img
                     class="center"
                     src={state.src == null? 'images/user.png' : state.src}
+                    style={isOutsider? 'filter: hue-rotate(50deg);': ''}
                 />
             </div>
             <div class="right-wrapper">
@@ -45,6 +46,7 @@
 
     import { createEventDispatcher, onMount } from 'svelte'
     import './Contact.css'
+    import { isRoleNameOutsider } from '../../lib/Database';
 
     const dispatch = createEventDispatcher()
 
@@ -55,10 +57,8 @@
     let domInput
 
     $: SUBCONTENT_CLASS = state.isExpanded ? 'subcontent subcontent--expanded' : 'subcontent'
-    
-    $: {
-        
-    }
+
+    $: isOutsider = isRoleNameOutsider(state?.role)
 
     onMount(() => {
         setTimeout(() => {

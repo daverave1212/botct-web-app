@@ -24,6 +24,15 @@ export function getUrlWithParams(baseUrl, obj) {
     }
     return baseUrl + '?' + queryParams
 }
+export function getFullUrl(baseUrl) {
+    if (baseUrl.startsWith('/') && browser) {
+        baseUrl = window.location.origin + baseUrl
+    }
+    if (baseUrl.endsWith('/')) {
+        baseUrl = baseUrl.substring(0, baseUrl.length - 1)
+    }
+    return baseUrl
+}
 export async function showQR(div, text) {
     if (!browser) {
         throw `Not in browser`
@@ -53,6 +62,13 @@ export function getScriptFromURL() {
 // Use with $page.url (import { page } from '$app/stores')
 export function getScriptFromURLSvelte(url) {
 
+    console.log({url})
+
+    if (url?.hash?.length > 3) {
+        const [_, qrData] = url.hash.split('#')
+        return getScriptFromURLQrDataV2(qrData)
+    }
+
     const hasCustomRoles = url.searchParams.has('custom-roles')
     const hasScriptName = url.searchParams.has('script-name')
 
@@ -66,6 +82,43 @@ export function getScriptFromURLSvelte(url) {
         customRoleNames
     }
 }
+export function getScriptFromURLQrDataV2(qrData) {
+    if (qrData == null || qrData.length == 0 || !qrData.includes('--')) {
+        return {
+            scriptName: null,
+            customRoleNames: null
+        }
+    }
+    
+    const [scriptName, customRoleIs] = decodeScriptNameAndRoleIs(qrData)
+    const customRoleNames = customRoleIs?.map(i => getRoleByI(i)?.name)
+
+    return {
+        scriptName,
+        customRoleNames
+    }
+}
+
+export function decodeScriptNameAndRoleIs(qrCode) {
+    if (qrCode == null || qrCode.length == 0) {
+        return [null, null]
+    }
+    const [scriptNameRaw, roleIsRaw] = qrCode.split('--')
+    if (scriptNameRaw == null || roleIsRaw == null) {
+        return [null, null]
+    }
+    const scriptName = scriptNameRaw.split('_').join(' ').trim()
+    const roleIs = roleIsRaw.split('-').map(str => parseInt(str))
+    return [scriptName, roleIs]
+}
+// My_Script--1-2-3-4-5
+export function encodeScriptNameAndRoleIs(scriptName, roleIs) {
+    const transmittedScriptName = scriptName.split(' ').join('_')
+    const transmittedRoleIs = roleIs.map(i => `${i}`).join('-')
+    const qrData = `${transmittedScriptName}--${transmittedRoleIs}`
+    return qrData
+}
+
 
 export function getURLParams() {
     if (!browser) {

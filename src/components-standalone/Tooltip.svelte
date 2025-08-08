@@ -27,6 +27,8 @@
         font-size: 1rem;
         padding: 1rem;
         border-radius: 0.75rem;
+
+        line-height: 1.5rem;
     }
 </style>
 

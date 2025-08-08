@@ -105,7 +105,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let role
+    export let role = {}
     export let hasRibbon = true
     export let hasBadge = true
     export let canOverflow = false

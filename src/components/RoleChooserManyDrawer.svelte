@@ -66,7 +66,7 @@
             <br>
             <p>{sectionTexts[i]}</p>
             <RoleList>
-                {#each roles as role, j ('Section' + i + role.name + j)}
+                {#each roles as role, j ('Section' + i + role?.name + j)}
                     {#if sectionFilter(j)}
                         <RoleCard role={role} on:role-click={(evt) => onPortraitClick(j)}/>
                     {/if}

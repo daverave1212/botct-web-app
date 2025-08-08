@@ -6,7 +6,7 @@
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { browser } from '$app/environment'
     import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR, sortRolesNormal } from "../../lib/Database";
-    import { getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
+    import { getFullUrl, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
     import { setCustomScript } from "../../stores/custom-scripts-store";
     import { page } from '$app/stores'
 
@@ -58,6 +58,24 @@
         await showQR(qrCodeWrapperDiv, completeUrl)
     }
 
+    async function saveAndGetQRV2() {
+
+        const scriptName = prompt('Enter script name').trim()
+        const roleIs = chosenRoles.map(role => role.i)
+        const qrData = encodeScriptNameAndRoleIs(scriptName, roleIs)
+        const completeUrl = getFullUrl(`/custom-script#${qrData}`)
+
+        async function saveScript() {
+            if (scriptName == null || scriptName.trim().length == 0) {
+                alert('Cannot have an empty name for a script')
+                return
+            }
+            setCustomScript(scriptName, roleIs)
+        }
+        saveScript()
+        await showQR(qrCodeWrapperDiv, completeUrl)
+    }
+
 </script>
 
 <InspectRoleDrawer isOpen={currentInspectorObject != null} role={currentInspectorObject} setIsOpen={() => currentInspectorObject = null}>
@@ -94,8 +112,9 @@
         }}
     />
 
-    <div class="center-content margin-top-4">
+    <div class="center-content flex-column gap-1 margin-top-4">
         <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQR} disabled={!isQRButtonEnabled}>Save & Get QR</button>
+        <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQRV2} disabled={!isQRButtonEnabled}>Save & Get QR V2</button>
         <div key="script-maker-qr-wrapper" bind:this={qrCodeWrapperDiv}></div>
     </div>
 

@@ -6,8 +6,8 @@
     import RoleListWithRoles from "../../components/RoleListWithRoles.svelte";
     import { browser } from '$app/environment'
     import { difficultyNames, getAllRoleDifficulties, getRole, getRoles, getSectionFilters, MORNING_COLOR, NIGHTLY, NIGHTLY_COLOR, sortRolesNormal } from "../../lib/Database";
-    import { getScriptFromURL, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
-    import { customScripts } from "../../stores/custom-scripts-store"
+    import { encodeScriptNameAndRoleIs, getFullUrl, getScriptFromURLSvelte, getUrlWithParams, showQR, stringToBase64QRCode } from "../../lib/svelteUtils";
+    import { customScripts, setCustomScript } from "../../stores/custom-scripts-store"
     import { page } from '$app/stores';
 
     const allRoles = getRoles()
@@ -23,8 +23,8 @@
         'custom-roles': roleIs
     })
 
-    $:customScript = getScriptFromURLSvelte($page.url)
     $: {
+        const customScript = getScriptFromURLSvelte($page.url)
         const { customRoleNames, scriptName } = customScript
         if (customRoleNames != null) {
             chosenRoles = customRoleNames.map(name => getRole(name))
@@ -42,6 +42,24 @@
             'custom-roles': roleIs
         }
         const completeUrl = getUrlWithParams('/custom-script', queryParamsObj)
+        await showQR(qrCodeWrapperDiv, completeUrl)
+    }
+
+    async function saveAndGetQRV2() {
+
+        const scriptName = prompt('Enter script name').trim()
+        const roleIs = chosenRoles.map(role => role.i)
+        const qrData = encodeScriptNameAndRoleIs(scriptName, roleIs)
+        const completeUrl = getFullUrl(`/custom-script#${qrData}`)
+
+        async function saveScript() {
+            if (scriptName == null || scriptName.trim().length == 0) {
+                alert('Cannot have an empty name for a script')
+                return
+            }
+            setCustomScript(scriptName, roleIs)
+        }
+        saveScript()
         await showQR(qrCodeWrapperDiv, completeUrl)
     }
 
@@ -89,8 +107,9 @@
         />
     {/if}
 
-    <div class="center-content margin-top-4">
+    <div class="center-content flex-column gap-1 margin-top-4">
         <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQR} disabled='{!chosenRoles.length > 0}'>Show QR</button>
+        <button class="btn" style={`background-color: ${NIGHTLY_COLOR}`} on:click={saveAndGetQRV2} disabled='{!chosenRoles.length > 0}'>Show QR V2</button>
         <a in:fly={{y: 100, delay: 150 }} class="btn colorful margin-top-1" href={scriptMakerHref}>Open In Script Maker</a>
         <div key="script-maker-qr-wrapper" bind:this={qrCodeWrapperDiv}></div>
     </div>

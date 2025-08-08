@@ -480,7 +480,8 @@ export const getRoles = () => {
             "difficulty": TROUBLE_BREWING,
             "effect": "You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.",
             ribbonColor: NIGHTLY_COLOR,
-            ribbonText: "OUTSIDER"
+            ribbonText: "OUTSIDER",
+            isBluffable: false
         },
         {
             "name": "Golem",
@@ -522,7 +523,8 @@ export const getRoles = () => {
             "difficulty": BAD_MOON_RISING,
             "effect": "You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.",
             ribbonColor: NIGHTLY_COLOR,
-            ribbonText: "OUTSIDER"
+            ribbonText: "OUTSIDER",
+            isBluffable: false
         },
         {
             "name": "Moonchild",
@@ -914,6 +916,14 @@ export const getRoles = () => {
     return roles
 }
 
+let outsiders = null
+export function getOutsiders() {
+    if (outsiders == null) {
+        outsiders = getRoles().filter(r => r?.ribbonText == 'OUTSIDER')
+    }
+    return outsiders
+}
+
 export const getRoles_OLD = () => {
     const roles = []
     return sortRolesNormal(roles)
@@ -1229,6 +1239,9 @@ export function getRoleByI(i) {
 }
 export function getEvent(name) {
     return getLocationCards().find(card => card.name == name)
+}
+export function isRoleNameOutsider(name) {
+    return getOutsiders().find(r => r?.name == name) != null
 }
 
 
