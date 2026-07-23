@@ -133,6 +133,9 @@
 .btn.blue {
     background-color: rgb(52, 138, 250);
 }
+.btn.orange {
+    background-color: rgb(255, 101, 29);
+}
 .btn.gray {
     background-color: gray;
 }

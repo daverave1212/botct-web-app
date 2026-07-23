@@ -18,7 +18,9 @@ export function numberToBaseStr(number, base) {
 
 
 
-
+export function removeDuplicates(arr) {
+  return [...new Set(arr)];
+}
 export function sum(arr) {
     return arr.reduce((partialSum, a) => partialSum + a, 0)
 }

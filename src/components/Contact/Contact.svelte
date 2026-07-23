@@ -22,6 +22,9 @@
 
                 <div class="half lower-half">
                     <span class="subtitle">{state.subtitle}</span>
+                    {#if state.note != null}
+                        <span class="subtitle" style="color: #FF8822; font-weight: bold"> ({state.note})</span>
+                    {/if}
                 </div>
 
                 {#if state.statusEffects != null}

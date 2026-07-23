@@ -10,6 +10,7 @@ export const BAD_MOON_RISING = 1
 export const SECTS_AND_VIOLETS = 1.5
 export const INTERMEDIATE = 2
 export const EXPERIMENTAL = 2.25
+export const KALI = 2.5
 export const ADVANCED = 9
 
 
@@ -19,6 +20,7 @@ export const difficultyNames = {
     [TROUBLE_BREWING]: 'Trouble Brewing',
     [BAD_MOON_RISING]: 'Bad Moon Rising',
     [SECTS_AND_VIOLETS]: 'Sects and Violets',
+    [KALI]: 'Running Away From Kali',
     [EXPERIMENTAL]: 'Experimental',
     
     [INTERMEDIATE]: '--Intermediate',
@@ -30,8 +32,6 @@ setTimeout(() => {
         .filter(dfc => difficultyNames[dfc].startsWith('--') == false)
         .map(dfc => difficultyNames[dfc])
         .map(name => name.charAt(0))
-    
-
 }, 1500)
 export function getFirstLetterOfDifficulty(difficulty) {
     return difficultyNames[difficulty].substring(0, 1)
@@ -50,6 +50,7 @@ export const difficultyDescriptions = {
     [BAD_MOON_RISING]: 'Use these roles for the base game. The app will help you keep the game running with tips!',
     [SECTS_AND_VIOLETS]: 'Add these simple roles to the game for extra spice!',
     [EXPERIMENTAL]: 'Balanced, easy to understand roles to make the game more intriguing! Who will be who?',
+    [KALI]: 'Custom script for our special group with special needs!',
     [INTERMEDIATE]: 'Extra roles to add to make it more interesting. Every game, there should NOT be both a Town Guard and a Priest (unless there are more than 15 players). You don\'t have to play with all of them. Only choose which roles you like to play with.',
     [ADVANCED]: 'Roles for advanced players who know the game and want more challenge. Beware: having these roles in the game will make it more difficult to narrate!',
     [COMPLETE]: 'Complete',
@@ -107,7 +108,225 @@ export const evilsByPlayers = {
 
     20: [[STRIGOY, STRIGOY, STRIGOY, STRIGOY, STRIGOY]],
 }
+const kaliCharacters = [
+    // Townsfolk
+    {
+        name: "Dog Lady",
+        difficulty: KALI,
+        effect: "You start knowing your nearest minion’s character. If equidistant, you learn a not in play character instead.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/doglady_running_away_from_kali.png",
+        firstNightReminder: "Show the Dog Lady their nearest minion’s character type. If eqidistant, show them a learn a not-in-play character instead."
+    },
+    {
+        name: "Scroller",
+        difficulty: KALI,
+        effect: "On your first night, choose 4 characters. Learn how many are in play.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/scroller_running_away_from_kali.png",
+        firstNightReminder: "Wake the Scroller to choose 4 characters. Show them how many are in play."
+    },
+    {
+        name: "Good Brother",
+        difficulty: KALI,
+        effect: "One of the demon's bluffs is actually in play. You start knowing which.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/goodbrother_running_away_from_kali.png",
+        firstNightReminder: "Wake the Good Brother to show them the bluff that's in play."
+    },
+    {
+        name: "Fata Morgana",
+        difficulty: KALI,
+        effect: "On your first day, ask the storyteller a question in private, answered by a number. Each night*, learn a wrong number.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/fatamorgana_running_away_from_kali.png",
+        otherNightReminder: "Show the Fata Morgana a wrong number."
+    },
+    {
+        name: "Terrible Veteran",
+        difficulty: KALI,
+        effect: "Each night, learn a character in play and the shortest direction to it. Then you might become drunk for the rest of the game.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/terribleveteran_running_away_from_kali.png",
+        statusEffect: 'Drunk',
+        firstNightReminder: "Show the Terrible Veteran a character in play and point in the shortest direction of it. At any point, you may start showing them wrong* information.",
+        otherNightReminder: "Show the Terrible Veteran a character in play and point in the shortest direction of it. At any point, you may start showing them wrong* information."
+    },
+    {
+        name: "Boto Binter",
+        difficulty: KALI,
+        effect: "Each night, choose a character. You learn that it is one of 2 players (arbitrary if its not in play).",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/botobinter_running_away_from_kali.png",
+        firstNightReminder: "Wake the Boto Binter up. They must choose a character on the sheet. Show them 2 players, one of which is the chosen character (unless it's not in play).",
+        otherNightReminder: "Wake the Boto Binter up. They must choose a character on the sheet. Show them 2 players, one of which is the chosen character (unless it's not in play)."
+    },
+    {
+        name: "Sleeper",
+        difficulty: KALI,
+        effect: "At any point in the game, a good player might learn you're the Sleeper.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/sleeper_running_away_from_kali.png"
+    },
+    {
+        name: "Food Sharer",
+        difficulty: KALI,
+        effect: "Each night*, choose a character different from last night (you can't choose yourself). It can't die tonight and tomorrow.",
+        statusEffect: 'Protected',
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/foodsharer_running_away_from_kali.png",
+        otherNightReminder: "Wake the Food Sharer. They choose a character on the sheet which becomes protected from dying."
+    },
+    {
+        name: "Runner Late",
+        difficulty: KALI,
+        effect: "You think you are a character already in play, but you are not. The first time you die, you don't, and you learn it this or next night.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/runnerlate_running_away_from_kali.png",
+        otherNightReminder: "If the Runner Late died, wake them up (unless they just died again this night).",
+        deathReminder: "If the Runner Late died, wake them up (unless they just died again this night)."
+    },
+    {
+        name: "Crow Laugher",
+        difficulty: KALI,
+        effect: "If you die at night, you may choose a minion character to die. If not in play, a good player might die.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/crowlaugher_running_away_from_kali.png",
+        otherNightReminder: "Wake the Crow Laugher if they died tonight. They choose a character on the sheet. It dies if it's a minion. Otherwise, a different good player might die.",
+        deathReminder: "Wake the Crow Laugher if they died tonight. They may choose a character on the sheet. It dies if it's a minion. Otherwise, a different good player might die.",
+    },
+    {
+        name: "Chaos Agent",
+        difficulty: KALI,
+        effect: "Once per game, during the day, publicly choose a player. If today they were mad as a different character than their real one, they die.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/chaosagent_running_away_from_kali.png"
+    },
+    {
+        name: "Jean",
+        difficulty: KALI,
+        effect: "The Grimoire is arranged according to a pattern and has 1 duplicate character. You get a hint regarding that pattern or the character. [+1 duplicate] [+Gardener]",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/jean_running_away_from_kali.png",
+        firstNightReminder: "Wake the Billie Jean to give them a hint."
+    },
+    {
+        name: "Hater of Biemar",
+        difficulty: KALI,
+        effect: "Each night, choose a player. They are sober, healthy, and get true info that bypasses character misregistration.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/haterofbiemar_running_away_from_kali.png",
+        statusEffect: 'Healthy',
+        firstNightReminder: "Wake the Hater of Biemar to choose a player (NOT a character). That player becomes sober, healthy, gets true info and might not misregister.",
+        otherNightReminder: "Wake the Hater of Biemar to choose a player (NOT a character). That player becomes sober, healthy, gets true info and might not misregister."
+    },
 
+    // Outsiders
+    {
+        name: "The Andreea",
+        difficulty: KALI,
+        effect: "There might be duplicate characters in play. [+0 to +2 duplicates]",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/theandreea_running_away_from_kali.png",
+        ribbonColor: NIGHTLY_COLOR,
+        ribbonText: "OUTSIDER"
+    },
+    {
+        name: "Pustiul",
+        difficulty: KALI,
+        effect: "You might register as a different character. If you are \"mad\" about being an outsider, you might be executed.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/pustiul_running_away_from_kali.png",
+        ribbonColor: NIGHTLY_COLOR,
+        ribbonText: "OUTSIDER"
+    },
+    {
+        name: "Boji",
+        difficulty: KALI,
+        effect: "When you die, an evil player becomes a different not-in-play character, but retains their ability.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/boji_running_away_from_kali.png",
+        ribbonColor: NIGHTLY_COLOR,
+        ribbonText: "OUTSIDER",
+        deathReminder: "An evil player becomes a not in play character, but also retains their ability."
+    },
+    {
+        name: "Drinker",
+        difficulty: KALI,
+        effect: "You think you are a good character, but you are not. One of your starting neighbors might not die. The other might die at any time.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/drinker_running_away_from_kali.png",
+        ribbonColor: NIGHTLY_COLOR,
+        ribbonText: "OUTSIDER"
+    },
+
+    // Minions
+    {
+        name: "Zeno",
+        difficulty: KALI,
+        effect: "Each night, choose a character: if in play, they are all poisoned tonight and tomorrow day. Otherwise, a random player might be poisoned instead.",
+        statusEffect: 'Poisoned',
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/zeno_running_away_from_kali.png",
+        firstNightReminder: "Wake the Zeno to have them choose a character on the sheet to become poisoned.",
+        otherNightReminder: "Wake the Zeno to have them choose a character on the sheet to become poisoned.",
+        ribbonColor: EVIL_COLOR,
+        ribbonText: "EVIL"
+    },
+    {
+        name: "Seagull Hrean",
+        difficulty: KALI,
+        effect: "You choose which outsiders are in play (you can make duplicates). [+1 Outsider] [+0 to +X duplicates]",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/seagullhrean_running_away_from_kali.png",
+        ribbonColor: EVIL_COLOR,
+        ribbonText: "EVIL"
+    },
+    {
+        name: "The Edmond",
+        difficulty: KALI,
+        effect: "Each night, learn a character in play. If you were mad about being this character before nominations, you might not be executed.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/theedmond_running_away_from_kali.png",
+        firstNightReminder: "Wake the Obnoxious Prick to show them a character they should be mad as.",
+        otherNightReminder: "Wake the Obnoxious Prick to show them a character they should be mad as.",
+        ribbonColor: EVIL_COLOR,
+        ribbonText: "EVIL"
+    },
+    {
+        name: "Regent",
+        difficulty: KALI,
+        effect: "Each night, guess your alive neighbors' characters. Learn how many you got right. The first time you guess right, choose a player: they die.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/regent_running_away_from_kali.png",
+        otherNightReminder: "Wake them up. They show you 2 characters (they can be the same character). The first time they guess right, show them yes, and they choose a player: they die.",
+        ribbonColor: EVIL_COLOR,
+        ribbonText: "EVIL"
+    },
+    {
+        name: "Griefer",
+        difficulty: KALI,
+        effect: "You might register as a different character, even if dead. You might know which good character you register as. [+1 Outsider]",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/griefer_running_away_from_kali.png",
+        firstNightReminder: "Wake the Griefer to show them a good character they will register as throughout the game.",
+        otherNightReminder: "If the character they register as changed, wake them up to show them the new character.",
+        ribbonColor: EVIL_COLOR,
+        ribbonText: "EVIL"
+    },
+
+    // Demons
+    {
+        name: "Time Itself",
+        difficulty: KALI,
+        effect: "Each night*, choose a character: they die. If they are not in play, the next character on the list dies instead (the character list loops around!)",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/timeitself_running_away_from_kali.png",
+        otherNightReminder: "Wake Time Itself to choose a character on the sheet. If they are in play, they die. Otherwise, the next character in any direction dies.",
+        isDemon: true
+    },
+    {
+        name: "Dungeon Master",
+        difficulty: KALI,
+        effect: "Each night*, choose a character: if in play, they die, and a player might die for each previously not in play character you chose.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/dungeonmaster_running_away_from_kali.png",
+        otherNightReminder: "Wake the Dungeon Master. They must show you a character on the sheet. If in play, that character and another one for each number token dies. Otherwise, add a number token to the Dungeon Master.",
+        isDemon: true
+    },
+    {
+        name: "Kali Man",
+        difficulty: KALI,
+        effect: "Each night*, choose a player: they die. A minion chosen this way becomes a different Demon you choose & you die instead.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/kaliman_running_away_from_kali.png",
+        otherNightReminder: "Wake the Kali Man to have them point to a player. That player dies, or becomes a different Demon if it's a minion, killing the Kali Man.",
+        isDemon: true
+    },
+    {
+        name: "God",
+        difficulty: KALI,
+        effect: "Each night*, choose a player: they die. You learn a different player's real character.",
+        src: "https://bloodstar.clocktica.com/p/daverave1212/Running_Away_From_Kali/god_running_away_from_kali.png",
+        otherNightReminder: "Wake God. They point to a player they want to kill. Then point them a different player and show them that player's real character.",
+        isDemon: true
+    }
+]
 export const getRoles = () => {
     const roles = [
         {
@@ -908,7 +1127,8 @@ export const getRoles = () => {
             "difficulty": BAD_MOON_RISING,
             "effect": "Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.",
             isDemon: true
-        }
+        },
+        ...kaliCharacters
     ]
     for (let i = 0; i < roles.length; i++) {
         roles[i].i = i
@@ -1003,48 +1223,14 @@ export function sortRolesNormal(roles) {
     return rolesSorted
 }
 
-// export function sortRolesNormal(roles) {
-//     const rolePriorityByTypeOrName = [
-//         WEREWOLVES,
-//         REGULAR_NEGATIVE,
-//         EVIL_SETUP,
-//         SPECIAL_SETUP,
-//         SETUP,
-//         'Bell Ringer',
-//         'Archaeologist',
-//         NIGHTLY,
-//         SPECIAL_NIGHTLY,
-//         REGULAR,
-//         OTHER_CATEGORY
-//     ]
-//     const rolesByCategory = groupArrayBy(roles, role => role.category)
-//     function sortArrayByWorthDescending(arr) {
-//         const getWorth = elem => elem.worth != null? elem.worth: 1
-//         return arr.sort((a,b) => getWorth(a) - getWorth(b))
-//     }
-    
-//     const rolesAlphabetically = [...roles].sort((a, b) => a.name.localeCompare(b.name))
-//     const rolesAndByWorth = sortArrayByWorthDescending([...rolesAlphabetically])
-//     const getRolePriority = role => 
-//     rolePriorityByTypeOrName.indexOf(role.name) != -1?
-//         rolePriorityByTypeOrName.indexOf(role.name):
-//     rolePriorityByTypeOrName.indexOf(role.team) != -1?
-//         rolePriorityByTypeOrName.indexOf(role.team):
-//     rolePriorityByTypeOrName.indexOf(role.category) != -1?
-//         rolePriorityByTypeOrName.indexOf(role.category):
-//         9999
-//     if (browser) {
-//         window.getRolePriority = getRolePriority
-//     }
-//     const rolesAndByCategory = [...rolesAndByWorth].sort((a, b) => getRolePriority(a) - getRolePriority(b))
-
-//     return rolesAndByCategory
-// }
-
 export const NO_PRIORITY = 99
 const setupOrder = [
 
     // High priority pregame effects
+    'Seagull Hrean',
+    'Jean',
+    'The Andreea',
+    'Good Brother',
     'Philosopher',
     'Snake Charmer',
     'Evil Twin',
@@ -1052,6 +1238,7 @@ const setupOrder = [
     // Pre-game effects
     'Sailor',
     'Courtier',
+    'Sleeper',
     
     // Setup evil knowledge
     'Godfather',
@@ -1062,6 +1249,7 @@ const setupOrder = [
     'Witch',
     'Cerenovus',
     'Spy',
+    'Zeno',
     
     // Lunatic
     'Lunatic',
@@ -1070,6 +1258,9 @@ const setupOrder = [
     'Pukka',
     
     // Start info
+    'Hater of Biemar',
+    'Dog Lady',
+    'Scroller',
     'Grandmother',
     'Washerwoman',
     'Librarian',
@@ -1080,19 +1271,29 @@ const setupOrder = [
     'Knight',
 
     // Nightly info
+    'The Edmond',
+    'Regent',
+    'Griefer',
+
     'Flowergirl',
     'Town Crier',
     'Dreamer',
     'Seamstress',
     'Empath',
     'Fortune Teller',
+
+    'Terrible Veteran',
+    'Boto Binter',
     
     // Other
     'Butler',
 
     // End of night
     'Mathematician',
-    'Chambermaid'
+    'Chambermaid',
+
+    'Crow Laugher',
+    'Boji',
 ]
 export function getSetupRolePriority(roleOrRoleName) {
     if (roleOrRoleName == null) {
@@ -1142,20 +1343,25 @@ const nightlyOrder = [
     'Poisoner',
     'Witch',
     'Cerenovus',
+    'Zeno',
     
     // Pre-evils Monk-like effects
     'Gambler',
     'Monk',
     'Exorcist',
+    'Food Sharer',
 
     // Non-invasive evils
     "Devil's Advocate",
     'Spy',
+    'The Edmond',
+    'Griefer',
 
     // Scarlet Woman
     'Scarlet Woman',
 
     // Evil Killings
+    'Regent',
     'Pit-Hag',
     'Fang Gu',
     'Vigormortis',
@@ -1165,15 +1371,25 @@ const nightlyOrder = [
     'Pukka',
     'Shabaloth',
     'Imp',
+    'Time Itself',
+    'Dungeon Master',
+    'Kali Man',
+    'God',
     
     'Assassin',
     'Godfather',
+
+    // Other
+    'Hater of Biemar',
     
     // Death effects
     'Barber',
     "Sage",
     'Ravenkeeper',
     'Undertaker',
+    'Runner Late',
+    'Boji',
+    'Crow Laugher',
 
     // Nightly knowledge
     'Flowergirl',
@@ -1183,6 +1399,9 @@ const nightlyOrder = [
     'Empath',
     'Fortune Teller',
     'Professor',
+    'Fata Morgana',
+    'Terrible Veteran',
+    'Boto Binter',
     
     // Pre-end of night effects
     'Oracle',
@@ -1234,7 +1453,11 @@ export function getSortRolesWithPriorityFunction(roles, getRolePriority) {
 
 
 export function getRole(name) {
-    return getRoles().find(role => role.name == name)
+    const role = getRoles().find(role => role.name == name)
+    if (role == null) {
+        console.error(`ERROR: Role not found: ${role}`)
+    }
+    return role
 }
 export function getRoleByI(i) {
     return getRoles().find(role => role.i == i)

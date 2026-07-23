@@ -1,12 +1,13 @@
 import { get, writable } from 'svelte/store'
 import { getLocalStorageObject, localStorageWritable } from '../lib/svelteUtils'
 import { isNumber } from '../lib/utils'
-import { BAD_MOON_RISING, SECTS_AND_VIOLETS, TROUBLE_BREWING, getRoleByI, getRoles } from '../lib/Database'
+import { BAD_MOON_RISING, KALI, SECTS_AND_VIOLETS, TROUBLE_BREWING, getRoleByI, getRoles } from '../lib/Database'
 
 const DEFAULT_SCRIPTS = {
     'Trouble Brewing': getRoles().filter(role => role.difficulty == TROUBLE_BREWING).map(role => role.name),
     'Bad Moon Rising': getRoles().filter(role => role.difficulty == BAD_MOON_RISING).map(role => role.name),
-    'Sects and Violets': getRoles().filter(role => role.difficulty == SECTS_AND_VIOLETS).map(role => role.name)
+    'Sects and Violets': getRoles().filter(role => role.difficulty == SECTS_AND_VIOLETS).map(role => role.name),
+    'Kali': getRoles().filter(role => role.difficulty == KALI).map(role => role.name),
 }
 
 export const customScripts = localStorageWritable('customScripts', DEFAULT_SCRIPTS)

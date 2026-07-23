@@ -32,7 +32,7 @@
     import '../../components/add-contact-button.css'
     import LocationPicker from '../../components/LocationPicker.svelte';
     import { chosenScriptRoleNames } from '../../stores/scripts-store.js';
-    import { randomizeArray } from '../../lib/utils.js';
+    import { randomizeArray, removeDuplicates } from '../../lib/utils.js';
     import RoleCard from '../../components/RoleCard.svelte';
     
     $:availableRoles = $chosenScriptRoleNames == null? []: $chosenScriptRoleNames
@@ -53,19 +53,37 @@
     
     $: areSortButtonsDisabled = $addedPlayers.filter(p => p.role == null).length > 0
 
-    const statusEffects = [
-        'Protected',
-        'Drunk',
-        'Granny',
-        'Poisoned',
+    // const statusEffects = [
+    //     'Protected',
+    //     'Drunk',
+    //     'Granny',
+    //     'Poisoned',
+    //     'Used Ability',
+    //     'Red Herring',
+    //     'Evil',
+    //     'Pukkaed',
+    //     'Enemy',
+    //     'Targeted',
+    //     'Out of Game',
+    // ]
+
+    const standardStatusEffects = [
         'Used Ability',
-        'Red Herring',
-        'Evil',
-        'Pukkaed',
-        'Enemy',
-        'Targeted',
         'Out of Game',
+        'Targeted',
     ]
+
+    $: statusEffects = removeDuplicates([
+        ...(availableRoles ?? [])
+            .map(name => getRole(name))
+            .filter(role => role.statusEffect != null)
+            .map(role => role.statusEffect),
+        ...standardStatusEffects
+    ])
+
+    // window.getRole = getRole
+    // window.getAvailableRoles = () => availableRoles
+
 
     // Inspect drawer
     let didOpenAndCloseModalOnce = false
@@ -106,6 +124,14 @@
 
 
     // Functions
+    function changeNotesForPlayerI(i) {
+        const playerState = $addedPlayers[i]
+        const prevNote = playerState.note ?? ''
+        const promptResult = prompt(`Change ${playerState.name}'s note:`, prevNote)
+        const newPlayerState = {...playerState, note: promptResult}
+        $addedPlayers[i] = newPlayerState
+        $addedPlayers = $addedPlayers
+    }
     function openRoleChangeMenuForPlayerI(i) {
         console.log('Hiding tooltip')
         $hasSetRoleTooltip = false
@@ -299,7 +325,8 @@
                 on:expand={() => $hasExpandTooltip = false}
             >
                 <div class="">
-                    <div class="flex-content wrap">
+                    <div class="flex-content wrap margin-top-1">
+                        <button class="btn orange" on:click={() => changeNotesForPlayerI(i)}>Set Note</button>
                         <button class="btn blue" on:click={() => openRoleChangeMenuForPlayerI(i)}>Change Role</button>
                         <button class="btn red" on:click={() => {
                             const role = getRole($addedPlayers[i]?.role)
